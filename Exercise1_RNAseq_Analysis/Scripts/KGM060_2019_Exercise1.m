@@ -5,30 +5,30 @@
 %  Christoph B?rlin
 %  Ivan Domenzain
 %
-%  Last edited. 2019-09-02
+%  Last edited. 2019-09-06
 
 %% Step 1: Load RNAseq Data and normalize the data
 
 %Load RNAseq data
-rawCounts = readtable('Data/Saccharomyces_RNAseq_RAW_counts.csv');
+rawCounts = readtable('../data/Saccharomyces_RNAseq_RAW_counts.csv');
 
 %Create logical vectors for easy access of the different conditions
-%now rawCounts(:,highTemp) outputs only the three columns with the data for
+%now rawCounts(:,HiT) outputs only the three columns with the data for
 %the high temperature stress condition.
-samples      = rawCounts(:,2:end).Properties.VariableNames;
-control      = startsWith(samples,'Control');
-highTemp     = startsWith(samples,'HighTemperature');
-lowPH        = startsWith(samples,'lowPH');
-OsmoPressure = startsWith(samples,'OsmoPressure');
-anaerobic    = startsWith(samples,'anaerobic');
+samples = rawCounts(:,2:end).Properties.VariableNames;
+ref     = startsWith(samples,'Control');
+HiT     = startsWith(samples,'HighTemperature');
+LpH     = startsWith(samples,'lowPH');
+Osm     = startsWith(samples,'OsmoPressure');
+anox    = startsWith(samples,'anaerobic');
 %Get only the counts from the RNAseq data
 rawCountsNum = rawCounts{:,2:end};
+
 %Estimate pseudo-reference with geometric mean row by row
 pseudoRefSample = geomean(rawCountsNum,2);
-
 %Data normalization
 %First, get the positions for all of the genes with non-zero reads
-nz     = pseudoRefSample > 0;
+nz = pseudoRefSample > 0;
 %Get ratios of expression, dividing each read by its corresponding gene
 %average expression across samples
 ratios = rawCountsNum(nz,:)./pseudoRefSample(nz);
@@ -36,6 +36,32 @@ ratios = rawCountsNum(nz,:)./pseudoRefSample(nz);
 sizeFactors = median(ratios,1);
 % normalize the raw counts using the calculated normalization factors
 normCounts = rawCountsNum./sizeFactors;
+%Let's take a look to the normalization effects on the gene counts
+%distributions. Generate boxplots for each of the samples distributions in
+%both rawCountsNum and also normCounts
+subplot(1,2,1);
+boxplot(rawCountsNum)
+title('Raw counts')
+ylabel('Read counts')
+xlabel('Samples')
+subplot(1,2,2);
+boxplot(normCounts)
+title('Normalized counts')
+ylabel('Read counts')
+xlabel('Samples')
+%##################
+%TASK:
+%
+%Can you extract any information from the boxplots? It might be the case
+%that plotting counts in the linear scale is not the best visualization
+%method, as you can see this dataset spans several orders of magnitude in
+%gene read counts, so transforming data into a logarithmic scale might be
+%more informative.
+%
+%Now you should get a new pair of boxplot graphs with the log2 transformed
+%datasets. What can you say about the data normalization step, did it have
+%any effect?
+%##################
 %% Step 2: PCA analysis
 
 %Perform PCA
@@ -73,17 +99,17 @@ hold off
 
 %pick one of the four stress condition that you would like to compare to
 %the control
-normCountsStress  = normCounts(:,highTemp);
-normCountsControl = normCounts(:,control);
+normCountsStress  = normCounts(:,HiT);
+normCountsref     = normCounts(:,ref);
 
 %Perform the test for differential expression using a negative binomial model
-tLocal = nbintest(normCountsControl,normCountsStress,'VarianceLink','LocalRegression');
+tLocal = nbintest(normCountsref,normCountsStress,'VarianceLink','LocalRegression');
 % correct for multiple testing using the Benjamini Hochberg correction
 padj = mafdr(tLocal.pValue,'BHFDR',true);
 
 %create overview table of the results including the mean for both
 %conditions, the resulting log2 fold change and the calculated pValue 
-meanRef    = mean(normCountsControl,2);
+meanRef    = mean(normCountsref,2);
 meanStress = mean(normCountsStress,2);
 log2FC     = log2(meanRef./meanStress);
 geneTable  = table(meanRef,meanStress,log2FC,tLocal.pValue,padj);
@@ -99,6 +125,19 @@ scatter(geneTable.Log2_FC,-log10(geneTable.adjPVal),30,'fill')
 % 1) Add labels to the axis
 % 2) Add a descriptive title (including the choosen stress condition)
 % 3) Mark every gene with an abs(log2_FC) >= 2 and adj_pValue <= 0.01 in red
+% 4) How many DE expressed genes did you get from the analysis? How many
+%    are down-regulated in  your chosen stress condition? How many
+%    up-regulated ones?
+%##################
+
+%##################
+% Optional TASK: (2 extra points) 
+% 1) How sensitive is your analysis to the chosen differential expression
+% thresholds? Try to repeat the DE analysis for different pValues subject
+% to constant log2FC thresholds and plot your results as: number of DE
+% genes vs. pValue threshold. If you dare to get several curves for
+% different log2FC values it would give you an idea on how both parameters
+% are afecting your results.
 %##################
 
 %% Step 4: First analysis of DE genes
@@ -119,7 +158,7 @@ disp(geneTable(1:10,:))
 %% Step 5: Find Associated GO Terms
 
 %load assocition of GO Terms and genes
-GoTerms_table = readtable('Data/GoTermsMapping.txt','delimiter','\t');
+GoTerms_table = readtable('../data/GoTermsMapping.txt','delimiter','\t');
 GoTermsIDs    = unique(GoTerms_table.GoTerm);
 
 %convert it to a map (the matlab variant of a dictionary) for easier access
@@ -149,7 +188,7 @@ disp(associatedGoTerms)
 
 %Thes GO Term IDs are not informative, therefore we need to load the
 %descriptions for them
-GO = geneont('File','Data/GoTerms.obo');
+GO = geneont('File','../data/GoTerms.obo');
 
 %Look up the details of the first GO Term
 %The lookup function needs just the ID number (in number format) as input
