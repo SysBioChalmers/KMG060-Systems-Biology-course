@@ -44,6 +44,7 @@ boxplot(rawCountsNum)
 title('Raw counts')
 ylabel('Read counts')
 xlabel('Samples')
+
 subplot(1,2,2);
 boxplot(normCounts)
 title('Normalized counts')
@@ -59,8 +60,8 @@ xlabel('Samples')
 %more informative.
 %
 %Now you should get a new pair of boxplot graphs with the log2 transformed
-%datasets. What can you say about the data normalization step, did it have
-%any effect?
+%datasets. What can you say about the data normalization step, did it yield
+%any evident effects?
 %##################
 %% Step 2: PCA analysis
 
@@ -131,7 +132,7 @@ scatter(geneTable.Log2_FC,-log10(geneTable.adjPVal),30,'fill')
 %##################
 
 %##################
-% Optional TASK: (2 extra points) 
+% Optional TASK: (1.5 extra points) 
 % 1) How sensitive is your analysis to the chosen differential expression
 % thresholds? Try to repeat the DE analysis for different pValues subject
 % to constant log2FC thresholds and plot your results as: number of DE
@@ -186,7 +187,7 @@ associatedGoTerms = GoTermsGeneMap(selectedGene);
 disp(['Associated GO Terms for gene ',selectedGene])
 disp(associatedGoTerms)
 
-%Thes GO Term IDs are not informative, therefore we need to load the
+%The GO Term IDs are not informative, therefore we need to load the
 %descriptions for them
 GO = geneont('File','../data/GoTerms.obo');
 
