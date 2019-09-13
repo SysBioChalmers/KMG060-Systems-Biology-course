@@ -112,11 +112,11 @@ padj = mafdr(tLocal.pValue,'BHFDR',true);
 %conditions, the resulting log2 fold change and the calculated pValue 
 meanRef    = mean(normCountsref,2);
 meanStress = mean(normCountsStress,2);
-log2FC     = log2(meanRef./meanStress);
+log2FC     = log2(meanStress./meanRef);
 geneTable  = table(meanRef,meanStress,log2FC,tLocal.pValue,padj);
 %Add row and column names
-geneTable.Properties.RowNames = rawCounts.GeneName;
-geneTable.Properties.VariableNames={'Mean_Ref','Mean_Stress','Log2_FC','pVal','adjPVal'};
+geneTable.Properties.RowNames      = rawCounts.GeneName;
+geneTable.Properties.VariableNames = {'Mean_Ref','Mean_Stress','Log2_FC','pVal','adjPVal'};
 
 %create a Volcano Plot for visual inspection of the data
 scatter(geneTable.Log2_FC,-log10(geneTable.adjPVal),30,'fill')
