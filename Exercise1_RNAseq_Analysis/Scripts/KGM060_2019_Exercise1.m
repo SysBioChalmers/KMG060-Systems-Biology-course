@@ -215,7 +215,7 @@ rankedPos = 1;
 GoTermID  = str2double(associatedGoTerms{rankedPos}(4:end));
 
 %split gene list into DE and non DE genes
-indexDE       = geneTable.pVal<=0.01 & abs(geneTable.Log2_FC)>=2;
+indexDE       = geneTable.adjPVal<=0.01 & abs(geneTable.Log2_FC)>=2;
 geneListDE    = geneTable.Properties.RowNames(indexDE);
 geneListNonDE = geneTable.Properties.RowNames(~indexDE);
 
