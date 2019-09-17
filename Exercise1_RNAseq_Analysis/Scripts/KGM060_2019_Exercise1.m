@@ -2,10 +2,10 @@
 %  Computational exercise #1
 %  Omics data analysis (RNAseq data)
 %
-%  Christoph B?rlin
+%  Christoph Boerlin
 %  Ivan Domenzain
 %
-%  Last edited. 2019-09-06
+%  Last edited. 2019-09-17
 
 %% Step 1: Load RNAseq Data and normalize the data
 
@@ -210,15 +210,17 @@ disp(['GO Term ',num2str(GoTermID),' - ',GoTermName,' : ',GoTermDefinition])
 
 %% Step 6: Find enriched GO Terms in differentially expressed genes
 
-%Select GO Term, in this case the top1 is chosen
-rankedPos = 1;
-GoTermID  = str2double(associatedGoTerms{rankedPos}(4:end));
-
 %split gene list into DE and non DE genes
 indexDE       = geneTable.adjPVal<=0.01 & abs(geneTable.Log2_FC)>=2;
 geneListDE    = geneTable.Properties.RowNames(indexDE);
 geneListNonDE = geneTable.Properties.RowNames(~indexDE);
+%Select GO Term, in this case the top1 is chosen
+rankedPosition = 1;
+GoTermID       = str2double(associatedGoTerms{rankedPosition}(4:end));
+%GO terms full IDs are of the form GO:XXXXXXX
+full_GoTerm_Id = sprintf('GO:%07d',GoTermID);
 
+%################## 'Alternative #1 
 %Check enrichment for selected GO Terms
 %Count number of occurences for the GO Term in all genes and in all DE
 %genes
@@ -226,8 +228,6 @@ GoTermCountAll = 0;
 GoTermCountDE  = 0;
 for key = GoTermsGeneMap.keys
     associatedGoTerms = (GoTermsGeneMap(key{1}));
-    %GO terms full IDs are of the form GO:XXXXXXX
-    full_GoTerm_Id = sprintf('GO:%07d',GoTermID);
     %Search the GO term ID in the associated GO terms cell array
     if any(strcmp(associatedGoTerms,full_GoTerm_Id))
         %
@@ -237,7 +237,19 @@ for key = GoTermsGeneMap.keys
         GoTermCountAll = GoTermCountAll+1;
     end
 end
-    
+%################## Alternative 2
+GoTermsIDs_table  = GoTerms_table.GoTerm;
+GoTermCountAll = 0;
+GoTermCountDE  = 0;
+presence       = find(strcmp(GoTermsIDs_table,full_GoTerm_Id));
+if ~isempty(presence)
+    relatedGenes  = GoTerms_table.GeneName(presence);
+    [~,indexesDE] = intersect(geneListDE,relatedGenes);
+    GoTermCountDE  = length(indexesDE);
+    GoTermCountAll = length(presence);
+end
+%##################
+
 disp(['GO Term ',num2str(GoTermID),' is in ',num2str(GoTermCountDE),...
     ' out of ',num2str(numel(geneListDE)),' DE Genes and in total there are ',...
     num2str(GoTermCountAll),' occurences in all ',num2str(numel(GoTermsGeneMap.keys)),' Genes'])
@@ -245,7 +257,6 @@ disp(['GO Term ',num2str(GoTermID),' is in ',num2str(GoTermCountDE),...
 %run hypergeometric test to assess significance
 pHyperGeo=hygepdf(GoTermCountDE,numel(GoTermsGeneMap.keys),GoTermCountAll,numel(geneListDE));
 disp(['The probablity for this is ',num2str(pHyperGeo)])
-
 %##################
 % TASK: 
 % Create a loop that goes over all existing GoTerms (GoTermsIDs) and
