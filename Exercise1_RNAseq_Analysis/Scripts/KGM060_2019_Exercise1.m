@@ -18,9 +18,9 @@ rawCounts = readtable('../data/Saccharomyces_RNAseq_RAW_counts.csv');
 samples = rawCounts(:,2:end).Properties.VariableNames;
 ref     = startsWith(samples,'Control');
 HiT     = startsWith(samples,'HighTemperature');
-LpH     = startsWith(samples,'lowPH');
+LpH     = startsWith(samples,'LowPH');
 Osm     = startsWith(samples,'OsmoPressure');
-anox    = startsWith(samples,'anaerobic');
+anox    = startsWith(samples,'Anaerobic');
 %Get only the counts from the RNAseq data
 rawCountsNum = rawCounts{:,2:end};
 
