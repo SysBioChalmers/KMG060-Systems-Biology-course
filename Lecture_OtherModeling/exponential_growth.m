@@ -15,13 +15,12 @@ function [t,x] = exponential_growth(cell_init, growth_rate)
 %
 % Usage:
 %
-%   [t,x] = exponential_growth(cell_init, growth_rate)
-%
+%   [t,x] = exponential_growth(cell_init, growth_rate);
 %
 %
 % Author: Daniel Cook, 2018-10-01
 % Updated: Jonathan Robinson, 2019-10-03
-% Copyrighted under Creative Commons Share Alike 
+% Copyrighted under Creative Commons Share Alike
 
 
 %% Section 1: Set parameter values
@@ -41,7 +40,7 @@ x0 = cell_init;
 k = growth_rate;
 
 
-%% Section 2: Run model
+%% Section 2: Run simulation
 
 % Call ODE solver
 [t,x] = ode45(@(t,x) growthFunc(t,x,k,x0), tStart:tStep:tEnd, x0);

@@ -1,4 +1,4 @@
-function [t,x] = exponential_growth_competition(cell_init,food_init,growth_rate)
+function [t,x] = exponential_growth_competition(cell_init, food_init, growth_rate)
 %Simulate exponential growth with competition and nutrient depletion
 %
 % Input:
@@ -15,12 +15,12 @@ function [t,x] = exponential_growth_competition(cell_init,food_init,growth_rate)
 %
 %   t       vector of time points (h)
 %
-%   x       vector of number of cells at each time point
+%   x       Nx2 matrix of number of each of the two cell types at each time
+%           point
 %
 % Usage:
 %
-%   [t,x] = exponential_growth_competition(cell1_init,cell2_init,food_init,growth_rate);
-%
+%   [t,x] = exponential_growth_competition(cell_init, food_init, growth_rate);
 %
 %
 % Author: Daniel Cook, 2018-10-01
@@ -55,7 +55,7 @@ k = growth_rate;
 
 %% Section 3: Plot results
 % Plot results
-if shouldPlot == 1
+if shouldPlot
     plot(t,x,'LineWidth',2);
     set(gca,'fontsize',14);
     xlabel('Time (hours)');
@@ -65,6 +65,8 @@ end
 
 end
 
+
+%% Secion 4: Growth function
 function dxdt = growthFunc(t,x,k,x0)
 % This function is the growth equation
 

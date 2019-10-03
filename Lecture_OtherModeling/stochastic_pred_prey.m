@@ -83,6 +83,7 @@ while t_current <= tEnd
     i = i+1;
 end
 
+
 %% Section 3: Plot results
 % Plot results
 if shouldPlot
@@ -93,7 +94,5 @@ if shouldPlot
     legend('Predator','Prey');
 end
 
-
-end
 
 

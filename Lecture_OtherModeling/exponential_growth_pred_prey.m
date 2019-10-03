@@ -57,12 +57,12 @@ d = death_rate;
 
 %% Section 3: Plot results
 % Plot results
-if shouldPlot == 1
+if shouldPlot
     plot(t,x,'LineWidth',2);
     set(gca,'fontsize',14);
     xlabel('Time (hours)');
     ylabel('Level [A.U.]');
-    legend('cell 1','cell 2');
+    legend('Predator','Prey');
 end
 
 end
