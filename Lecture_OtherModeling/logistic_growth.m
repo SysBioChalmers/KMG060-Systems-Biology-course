@@ -44,13 +44,12 @@ k = growth_rate;
 %% Section 2: Run model
 
 % Call ODE solver
-[t,x] = ode45(@(t,x) odefun(t,x,k,x0), tStart:tStep:tEnd, x0);
+[t,x] = ode45(@(t,x) growthFunc(t,x,k,x0), tStart:tStep:tEnd, x0);
 
 
 %% Section 3: Plot results
 % Plot results
 if shouldPlot
-    % Plot cell growth
     plot(t,x,'LineWidth',2);
     set(gca,'fontsize',14);
     xlabel('Time (hours)');
@@ -62,7 +61,7 @@ end
 
 %% Secion 4: Growth function
 
-function dxdt = odefun(t,x,k,x0)
+function dxdt = growthFunc(t,x,k,x0)
 % This function is the growth equation
 
 % Set parameters
@@ -72,4 +71,5 @@ carrying_capacity = 10;
 % Set up differential equations
 dxdt = growth_rate * x * (1 - x/carrying_capacity); % cell population
 end
+
 
