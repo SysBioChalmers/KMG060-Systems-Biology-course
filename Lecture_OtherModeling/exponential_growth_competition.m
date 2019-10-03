@@ -1,65 +1,92 @@
-function [t,x] = exponential_growth_competition(cell_init, growth_rate)
-% Author: Daniel Cook
-% Date: 10/01/2018
+function [t,x] = exponential_growth_competition(cell_init,food_init,growth_rate)
+%Simulate exponential growth with competition and nutrient depletion
+%
+% Input:
+%
+%   cell_init       vector specifying the initial number of each of the two
+%                   cell types (e.g., [1, 1])
+%
+%   food_init       initial amount of food
+%
+%   growth_rate     vector specifying the growth rate (1/h) for each of the
+%                   two cell types (e.g., [0.1, 0.2])
+%
+% Output:
+%
+%   t       vector of time points (h)
+%
+%   x       vector of number of cells at each time point
+%
+% Usage:
+%
+%   [t,x] = exponential_growth_competition(cell1_init,cell2_init,food_init,growth_rate);
+%
+%
+%
+% Author: Daniel Cook, 2018-10-01
+% Updated: Jonathan Robinson, 2019-10-03
 % Copyrighted under Creative Commons Share Alike
-% To run, use: [t,x] = exponential_growth_competition([1,1,10],[.2,.1]);
 
-% Set plotting and printing (1=show results, 2=suppress results)
-shouldPlot = 1; colorChoice = 'k';
 
 %% Section 1: Set parameter values
-% Set time (in days)
-tStart = 0;
-tEnd = 500; % Number of hours to run simulation
 
-% Set number of cells to start
-x0(1) = cell_init(1); % cell population 1
-x0(2) = cell_init(2); % cell population 2
-x0(3) = cell_init(3); % food amount
+%Set plotting and printing (true=show results, false=suppress results)
+shouldPlot = true;
+
+% Set start and end times (in hours), as well as the step size
+tStart = 0;
+tEnd = 100;
+tStep = 0.1;
+
+% Set number of cells and amount of food to start with
+x0(1) = cell_init(1);
+x0(2) = cell_init(2);
+x0(3) = food_init;
 
 % Define model parameters
 k = growth_rate;
 
-%% Section 2: Run model
+
+%% Section 2: Run simulation
+
 % Call ODE solver
-timeStep = 0.1; % Days
-[t,x] = ode45(@(t,x)odefun(t,x,k,x0), [tStart:tEnd], x0);
+[t,x] = ode45(@(t,x) growthFunc(t,x,k,x0), tStart:tStep:tEnd, x0);
+
 
 %% Section 3: Plot results
 % Plot results
 if shouldPlot == 1
-    % Plot cell growth
-    figure(1); hold on; plot(t,x(:,1),'-','color',colorChoice,'linewidth',2);
-    figure(1);hold on; plot(t,x(:,2),'--','color',colorChoice,'linewidth',2);
-    figure(1);hold on; plot(t,x(:,3),'-.','color','blue','linewidth',2);
-    set(gca,'fontsize',18,'linewidth',2); box off
-    xlabel('Time (hours)'); ylabel('Level [A.U.]')
-    legend('x1','x2','glucose')
+    plot(t,x,'LineWidth',2);
+    set(gca,'fontsize',14);
+    xlabel('Time (hours)');
+    ylabel('Level [A.U.]');
+    legend('cell 1','cell 2','food');
 end
 
 end
 
-function dxdt = odefun(t,x,k,x0)
+function dxdt = growthFunc(t,x,k,x0)
 % This function is the growth equation
 
 % Set parameters
 growth_rate = k;
 
-% Set up differential equations
+% cells do not inhibit each other
 dxdt(1) = growth_rate(1)*x(1)*(1-(x(1)+x(2))/x(3)); % Cell population (1)
 dxdt(2) = growth_rate(2)*x(2)*(1-(x(1)+x(2))/x(3)); % Cell population (2)
-dxdt(3) = 1-.1*(x(1)+x(2)); % Continuous glucose feeding
+dxdt(3) = 1 - 0.1*(x(1)+x(2)); % Continuous glucose feeding
 
-% x2 inhibits x1 growth
+% cell 2 inhibits cell 1 growth
 % dxdt(1) = (growth_rate(1)/x(2))*x(1)*(1-(x(1)+x(2))/x(3)); % Cell population (1)
 % dxdt(2) = growth_rate(2)*x(2)*(1-(x(1)+x(2))/x(3)); % Cell population (2)
-% dxdt(3) = 1-.1*(x(1)+x(2)); % Continuous glucose feeding
+% dxdt(3) = 1 - 0.1*(x(1)+x(2)); % Continuous glucose feeding
 
 % Mutual inhibition
 % dxdt(1) = (growth_rate(1)/x(2))*x(1)*(1-(x(1)+x(2))/x(3)); % Cell population (1)
 % dxdt(2) = (growth_rate(2)/x(1))*x(2)*(1-(x(1)+x(2))/x(3)); % Cell population (2)
-% dxdt(3) = 1-.1*(x(1)+x(2)); % Continuous glucose feeding
-
+% dxdt(3) = 1 - 0.1*(x(1)+x(2)); % Continuous glucose feeding
 
 dxdt = dxdt'; % This needs to be a column vector
 end
+
+
