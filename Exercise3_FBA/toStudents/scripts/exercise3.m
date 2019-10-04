@@ -234,20 +234,3 @@ var_names  = {'Gluc-Aerobic','Gluc-Anaerobic','EtOH-Aerobic','EtOH-Anaerobic'};
 barplot([va,vb,vc,vd],pos,flux_names,var_names,'Fluxes',base+100)
 
 %% 4 Additional exercise In silico gene deletions
-
-rxnGeneMat = model.rxnGeneMat;
-grRules    = model.grRules;
-%Introduce missing elements for the new reactions
-[~,genes]  = size(rxnGeneMat);
-rxnGeneMat = [rxnGeneMat; zeros(1,genes); zeros(1,genes)];
-grRules    = [grRules; {''}; {''}];
-% Allow glucose and oxygen uptakes and block ethanol consumption
-LB(pos(1)) = -1;
-LB(pos(2)) = -10;
-LB(pos(6)) = 0;
-
-% 4.1) Find essential genes
-essential = findEssentialGenes(rxnGeneMat,c,S,b,LB,UB,grRules);
-
-disp('Essential genes for aerobic growth on glucose: ')
-disp(essential)
