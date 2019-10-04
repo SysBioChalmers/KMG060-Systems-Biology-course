@@ -28,10 +28,9 @@ function [t,x] = exponential_growth(cell_init, growth_rate)
 %Set plotting and printing (true=show results, false=suppress results)
 shouldPlot = true;
 
-% Set start and end times (in hours), as well as the step size
+% Set start and end times (in hours)
 tStart = 0;
 tEnd = 48;
-tStep = 0.1;
 
 % Set number of cells to start with
 x0 = cell_init;
@@ -43,7 +42,7 @@ k = growth_rate;
 %% Section 2: Run simulation
 
 % Call ODE solver
-[t,x] = ode45(@(t,x) growthFunc(t,x,k,x0), tStart:tStep:tEnd, x0);
+[t,x] = ode45(@(t,x) growthFunc(t,x,k,x0), [tStart, tEnd], x0);
 
 
 %% Section 3: Plot results

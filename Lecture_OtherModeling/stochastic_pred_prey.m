@@ -37,7 +37,7 @@ shouldPlot = true;
 
 % Set start and end times (in hours), as well as the step size
 tStart = 0;
-tEnd = 500;
+tEnd = 100;
 
 % Set number of cells to start with
 x = cell_init;

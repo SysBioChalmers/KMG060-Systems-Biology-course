@@ -38,7 +38,6 @@ shouldPlot = true;
 % Set start and end times (in hours), as well as the step size
 tStart = 0;
 tEnd = 100;
-tStep = 0.1;
 
 % Set number of cells to start with
 x0(1) = cell_init(1);  % predator
@@ -52,7 +51,7 @@ d = death_rate;
 %% Section 2: Run model
 
 % Call ODE solver
-[t,x] = ode45(@(t,x) growthFunc(t,x,k,d,x0), tStart:tStep:tEnd, x0);
+[t,x] = ode45(@(t,x) growthFunc(t,x,k,d,x0), [tStart, tEnd], x0);
 
 
 %% Section 3: Plot results
