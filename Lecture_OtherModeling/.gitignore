@@ -1,0 +1,6 @@
+# temporary matlab files
+*.m~
+
+# hidden extensions
+.DS_Store
+
