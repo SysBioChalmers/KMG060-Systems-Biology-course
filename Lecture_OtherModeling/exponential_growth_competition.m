@@ -49,7 +49,7 @@ k = growth_rate;
 %% Section 2: Run simulation 
 
 % Call ODE solver
-[t,x] = ode45(@(t,x) growthFunc(t,x,k,x0), [tStart, tEnd], x0);
+[t,x] = ode45(@(t,x) growthFunc(t,x,k), [tStart, tEnd], x0);
 
 
 %% Section 3: Plot results 
@@ -68,7 +68,7 @@ end
 
 %% Secion 4: Growth function 
 
-function dxdt = growthFunc(t,x,k,x0)
+function dxdt = growthFunc(t,x,k)
 % This function is the growth equation
 
 % Set parameters
