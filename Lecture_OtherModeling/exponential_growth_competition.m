@@ -90,4 +90,3 @@ dxdt(3) = 1 - 0.1*(x(1)+x(2)); % Continuous glucose feeding
 dxdt = dxdt'; % This needs to be a column vector
 end
 
-
