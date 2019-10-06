@@ -51,7 +51,7 @@ d = death_rate;
 %% Section 2: Run model 
 
 % Call ODE solver
-[t,x] = ode45(@(t,x) growthFunc(t,x,k,d,x0), [tStart, tEnd], x0);
+[t,x] = ode45(@(t,x) growthFunc(t,x,k,d), [tStart, tEnd], x0);
 
 
 %% Section 3: Plot results 
@@ -68,7 +68,7 @@ end
 
 
 %% Secion 4: Growth function 
-function dxdt = growthFunc(t,x,k,d,x0)
+function dxdt = growthFunc(t,x,k,d)
 % This function is the growth equation
 
 % Set parameters
