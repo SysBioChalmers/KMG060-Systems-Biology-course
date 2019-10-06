@@ -30,9 +30,9 @@ function [t,x] = exponential_growth_pred_prey(cell_init, growth_rate ,death_rate
 % Copyrighted under Creative Commons Share Alike
 
 
-%% Section 1: Set parameter values
+%% Section 1: Set parameter values 
 
-%Set plotting and printing (true=show results, false=suppress results)
+% Set plotting and printing (true=show results, false=suppress results)
 shouldPlot = true;
 
 % Set start and end times (in hours), as well as the step size
@@ -48,13 +48,13 @@ k = growth_rate;
 d = death_rate;
 
 
-%% Section 2: Run model
+%% Section 2: Run model 
 
 % Call ODE solver
 [t,x] = ode45(@(t,x) growthFunc(t,x,k,d,x0), [tStart, tEnd], x0);
 
 
-%% Section 3: Plot results
+%% Section 3: Plot results 
 % Plot results
 if shouldPlot
     plot(t,x,'LineWidth',2);
@@ -67,7 +67,7 @@ end
 end
 
 
-%% Secion 4: Growth function
+%% Secion 4: Growth function 
 function dxdt = growthFunc(t,x,k,d,x0)
 % This function is the growth equation
 

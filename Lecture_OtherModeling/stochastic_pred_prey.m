@@ -30,7 +30,7 @@ function [t,x] = stochastic_pred_prey(cell_init, growth_rate ,death_rate)
 % Copyrighted under Creative Commons Share Alike
 
 
-%% Section 1: Set parameter values
+%% Section 1: Set parameter values 
 
 %Set plotting and printing (true=show results, false=suppress results)
 shouldPlot = true;
@@ -43,7 +43,8 @@ tEnd = 100;
 x = cell_init;
 
 
-%% Section 2: Run model
+%% Section 2: Run model 
+
 t_current = tStart;
 t(1) = t_current;
 i = 1;
@@ -84,7 +85,8 @@ while t_current <= tEnd
 end
 
 
-%% Section 3: Plot results
+%% Section 3: Plot results 
+
 % Plot results
 if shouldPlot
     plot(t,x,'LineWidth',2);
