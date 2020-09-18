@@ -1,11 +1,11 @@
-%% KMGO60 Systems Biology course
+% KMGO60 Systems Biology course
 %  Computational exercise #1
 %  Omics data analysis (RNAseq data)
 %
 %  Christoph Boerlin
 %  Ivan Domenzain
 %
-%  Last edited. 2019-09-17
+%  Last edited. 2020-09-18
 
 %% Step 1: Load RNAseq Data and normalize the data
 
@@ -35,7 +35,7 @@ ratios = rawCountsNum(nz,:)./pseudoRefSample(nz);
 %Get sizeFactors for normalization of each column (library of gene reads) 
 sizeFactors = median(ratios,1);
 % normalize the raw counts using the calculated normalization factors
-normCounts = rawCountsNum./sizeFactors;
+normCounts = ratios./sizeFactors;
 %Let's take a look to the normalization effects on the gene counts
 %distributions. Generate boxplots for each of the samples distributions in
 %both rawCountsNum and also normCounts
