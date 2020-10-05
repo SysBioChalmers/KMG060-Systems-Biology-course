@@ -1,5 +1,5 @@
-# Excercise 3: FBA simulations with enzyme constrained models
-The predictive capabilities of a purely metabolic model have been explored with yeastGEM in [Exercise#2](https://github.com/SysBioChalmers/workshops/blob/master/Tartu_2020/instructions/Excercise2.md) in which the following limitations were identified:
+# ecModels DEMO: FBA simulations with enzyme constrained models
+The predictive capabilities of a purely metabolic model have been explored in **Exercise#3** in which the following limitations were identified:
 1. A large number of unbounded reaction fluxes are obtained in a typical FBA simulation when just a few constraints are imposed.
 2. GEMs predict a linear relation between maximum growth rates and glucose uptake rate, which might lead to erroneous predictions if high uptakes rates are provided.
 

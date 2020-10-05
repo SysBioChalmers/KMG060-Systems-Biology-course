@@ -1,5 +1,4 @@
-%Metabolic modelling tutorial: Excercise #3
-% Exercise3
+%ecModels DEMO
 %
 %  - Enzyme-constrained model exploration
 %  - The role of enzyme constraints in growth simulations
