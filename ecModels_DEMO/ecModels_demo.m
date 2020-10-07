@@ -39,7 +39,7 @@ plot2D(abs(FluxDist),[],'FBA simulation (yeastGEM)','Fluxes value [mmol/gDCW h]'
 FluxDist = solutionEC.x(abs(solutionEC.x)>1E-7);
 plot2D(abs(FluxDist),[],'FBA simulation (ecYeastGEM)','Fluxes value [mmol/gDCW h]','Cumulative distribution',true)
 
-Growth rate vs Glucose uptake rate
+%% Growth rate vs Glucose uptake rate
 %Find relevant reaction positions first
 growthIndex   = strcmpi(model.rxnNames,'growth');
 growthIndexEC = strcmpi(ecModel_batch.rxnNames,'growth');
@@ -47,7 +47,7 @@ glucIN        = model.rxns{strcmpi(model.rxnNames,'D-glucose exchange')};
 glucIndex     = strcmpi(model.rxnNames,'D-glucose exchange');
 c_source      = 'D-glucose exchange (reversible)'; 
 glucIndexEC   = find(strcmpi(ecModel_batch.rxnNames,c_source));
-%% Plot growth rate vs GUR
+% Plot growth rate vs GUR
 gRates    = 0; %Initialize vectors of results
 GURates   = 0;
 gRatesEC  = 0;
