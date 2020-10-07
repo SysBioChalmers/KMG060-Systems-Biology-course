@@ -1,118 +1,69 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Batch_CarbonSources_simulations
+function [flux_dist, MRE_tot,conditions] = Csources_simulations(ecModel_batch)
+% Csources_simulations
 % 
 % Ivan Domenzain. created:       2017-09-21
-% Ivan Domenzain. Last modified: 2018-01-26
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [flux_dist, conditions] = Csources_simulations(ecModel_batch)
-current = pwd;
+% Ivan Domenzain. Last modified: 2020-10-06
+
+data    = readtable('../data/growthRates_data_carbonSources.txt','delimiter','\t','ReadVariableNames',true);
+media   = {'Min' 'MAA' 'YEP'};
+conditions = [];
 figure
 axis square
-file_name = '../data/growthRates_data_carbonSources.txt';
-fID       = fopen(file_name);
-data      = textscan(fID,'%s %s %f','delimiter','\t');
-efe       = fclose('all'); 
-media     = [{'YEP'}, {'MAA'}, {'Min'}];
-colors    = {'blue' 'red' 'yellow'};
-count      = 1;
-conditions = [];
+%Create a table for storing all flux distributions
+flux_dist = table(ecModel_batch.rxns,ecModel_batch.rxnNames,'VariableNames',{'rxns' 'rxnNames'});
+%Identify position of the growth pseudoreaction in model structure
+gR_pos = find(strcmpi(ecModel_batch.rxnNames,'growth'));
+%Set growth as objective to maximize
+ecModel_batch.c(:) = 0;
+ecModel_batch.c(gR_pos) = 1;
+MRE_tot = [];
+markers = {'o' 's' 'd'};
+colors  = {'black' 'red' 'blue'};
+legendStr = {};
 for i=1:length(media)
-    media_indexes    = indexes_string(data{2},media{i},false);
-    gRates_exp{1}{i} = data{1}(media_indexes);
-    gRates_exp{2}{i} = data{3}(media_indexes);
-    gRates_sim{i}    = [];
-    SSres = 0;
-    SStot = 0;
-    for j=1:length(gRates_exp{2}{i})
-        
+    %Identify all entries for the i-th media type
+    mediaIdxs = find(strcmpi(data.media,media{i}));
+    relErr = [];
+    gRates_sim = zeros(length(mediaIdxs),1);
+    for j=1:length(mediaIdxs)
         model = ecModel_batch;
-        cd (current)
-        c_source           = strcat(gRates_exp{1}{i}{j},' exchange (reversible)'); 
-        [model,pos]         = changeMedia_batch(model,c_source,media{i});
-        gR_pos             = find(strcmpi(model.rxnNames,'growth'));
-         model.c            = zeros(size(model.c));
-         model.c(gR_pos)    = 1;
+        %create string for the corresponding carbon source uptake reaction
+        %name, then set media conditions with unbounded cSource uptake
+        c_source = [data.c_source{mediaIdxs(j)} ' exchange (reversible)'];
+        model    = changeMedia_batch(model,c_source,data.media{mediaIdxs(j)});
+        %Get a flux distribution
+        solution      = solveLP(model);
+        gRates_sim(j) = solution.x(gR_pos);
+        %Get relative error in gRate prediction
+        res    = round(abs(data.gRate(mediaIdxs(j))-gRates_sim(j))*100/data.gRate(mediaIdxs(j)),2);
+        relErr = [relErr;res];
+        str    = [data.media{mediaIdxs(j)} '_' data.short_name{mediaIdxs(j)}];
+        conditions = [conditions;str];
+        %Append flux distribution to results table
+        eval(['flux_dist.' str ' = solution.x;'])
+        %Place c source str in the corresponding coordinates
         
-         solution           = solveLP(model);
-         if solution.stat ~= 1
-             disp(c_source)
-             disp(solution.stat)
-         end  
-         model.lb(gR_pos)   = 0.999*solution.x(gR_pos);
-         model.ub(gR_pos)   = solution.x(gR_pos);
-         solution           = solveLP(model,1);
-        gRates_sim{i}       = [gRates_sim{i};solution.x(gR_pos)];
-        res                 = abs((gRates_exp{2}{i}(j)-gRates_sim{i}(j))/...
-                              gRates_exp{2}{i}(j))*100;
-        SSres               = SSres + res;
-        
-
-        switch gRates_exp{1}{i}{j}
-                case 'D-fructose'
-                    c_tag = 'Fru';
-                case 'D-glucose'
-                    c_tag = 'Glu';
-                case 'sucrose'
-                    c_tag = 'Suc';
-                case 'maltose'
-                   c_tag = 'Mal';
-                case 'acetate'
-                    c_tag = 'Ace';
-                case 'D-galactose'
-                    c_tag = 'Gal';
-                case 'glycerol'
-                    c_tag = 'Gly';
-                case 'ethanol'
-                    c_tag = 'Eth'; 
-                case 'raffinose'
-                    c_tag = 'Raf'; 
-                case 'alpha,alpha-trehalose'
-                    c_tag = 'Tre';
-                case 'D-mannose'
-                    c_tag = 'Man';
-
-        end 
-        flux_dist(:,count) = solution.x;
-        count              = count+1;
-        conditions         = [conditions;...
-                              {char(strcat(media(i),string('_'),c_tag))}];
-        switch i
-              case 1
-                  marker = 'd';
-              case 2
-                  marker = 's';
-              case 3
-                  marker = 'o';
-        end
-        
-        text(gRates_exp{2}{i}(j),gRates_sim{i}(j),c_tag,'FontSize',10)
-        hold on
-
     end
-    plot(gRates_exp{2}{i},gRates_sim{i},marker,'MarkerSize',15)
+    %hold on
+    plot(data.gRate(mediaIdxs),gRates_sim,markers{i},'MarkerSize',15,'MarkerFaceColor',colors{i},'MarkerEdgeColor',colors{i})
+    text(1.06*data.gRate(mediaIdxs),1.06*gRates_sim,data.short_name(mediaIdxs),'FontSize',14)
     hold on
-    %title('Max growth rate on different carbon sources','FontSize',30,'FontWeight','bold')
-    ylabel('\mu_{max} predicted [h^{-1}]','FontSize',18,'FontWeight','bold');
-    xlabel('\mu_{max} experimental [h^{-1}]','FontSize',18,'FontWeight','bold');
-    xlim([0 0.6])
-    ylim([0 0.6])
-    RSq(i)       = (SSres)/length(gRates_exp{2}{i});
-    legendStr(i) = strcat(media(i),' / e_{av}=',num2str(RSq(i)),'%');
+    MRE_tot = [MRE_tot;relErr];
+    MRE = mean(relErr);
+    legendStr{i} = [media{i} ' / MRE =' num2str(MRE) '%'];
 end
+%Calculate overall mean relative error
+MRE_tot = mean(MRE_tot);
+set(gca,'FontSize',14)
+%title('Max growth rate on different carbon sources','FontSize',30,'FontWeight','bold')
+ylabel('\mu_{max} predicted [h^{-1}]','FontSize',18,'FontWeight','bold');
+xlabel('\mu_{max} experimental [h^{-1}]','FontSize',18,'FontWeight','bold');
+xlim([0 0.6])
+ylim([0 0.6])
 x1 = linspace(0,1,1000);
+%legend(legendStr,'FontSize',16,'Location','southeast')
+legend(legendStr,'FontSize',16,'Location','southeast')
 plot(x1,x1)
-hold on
-legend(legendStr)
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Function that receives a string and a cell array and returns the indexes
-% in which the string appears on the array.
-function matching = indexes_string(cell_array,str,flag)
-    matching  = strfind(cell_array,str);
-    if flag
-       matching = find(~cellfun(@isempty,matching),1);
-    else
-        matching = find(~cellfun(@isempty,matching));
-    end
+hold off
 
 end

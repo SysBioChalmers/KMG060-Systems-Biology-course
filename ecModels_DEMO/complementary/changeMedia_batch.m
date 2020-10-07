@@ -88,6 +88,8 @@ model = setParam(model, 'ub', 'r_2049_REV', Inf); % sodium exchange
 model = setParam(model, 'ub', 'r_4594_REV', Inf); % Cu(2+) exchange
 model = setParam(model, 'ub', 'r_4600_REV', Inf); % Ca(2+) exchange
 model = setParam(model, 'ub', 'r_2020_REV', Inf); % potassium exchange
+%block production of (R,R)-2,3-butanediol
+model = setParam(model, 'ub', 'r_1549', 0);
 %Allow biomass production 
 model = setParam(model, 'ub', 'r_2111', Inf); % growth
 end
